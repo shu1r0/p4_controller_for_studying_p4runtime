@@ -1,4 +1,5 @@
 import argparse
+import binascii
 import socket
 from logging import StreamHandler, DEBUG, getLogger
 from typing import List
@@ -52,45 +53,46 @@ if __name__ == "__main__":
     # 書き込むテーブルエントリ．各IDはp4infoから取得
     table_entries: List[TableEntry] = [
         {
+            "update_type": p4runtime_pb2.Update.MODIFY,
             "table_id": 33574068,  # MyIngress.ipv4_lpm
             "is_default_action": True,
             "action": {
                 "action_id": 16805608,  # MyIngress.drop
             }
-        },{
-            "table_id": 0,  # MyIngress.ipv4_lpm
+        }, {
+            "update_type": p4runtime_pb2.Update.INSERT,
+            "table_id": 33574068,  # MyIngress.ipv4_lpm
             "match": [
                 {
                     "field_id": 1,  # hdr.ipv4.dstAddr
                     "match_type": p4runtime_pb2.FieldMatch.LPM,
-                    "value": socket.inet_aton("192.168.0.1"),
+                    "value": socket.inet_aton("192.168.1.1"),
                     "prefix_len": 32,
                 }
             ],
-            "is_default_action": True,
             "action": {
                 "action_id": 16799317,  # MyIngress.ipv4_forward
                 "params": [
-                    (1, binascii.unhexlify("00:00:00:00:00:01".replace(':', ''))),  # (dstAddr, "00:00:00:00:00:01")
-                    (2, (1).to_bytes(9, "big"))  # (port, 1)
+                    (1, binascii.unhexlify("08:00:00:00:00:01".replace(':', ''))),  # (dstAddr, "08:00:00:00:00:01")
+                    (2, (1).to_bytes(2, "big"))  # (port, 1)
                 ]
             }
-        },{
-            "table_id": 0,  # MyIngress.ipv4_lpm
+        }, {
+            "update_type": p4runtime_pb2.Update.INSERT,
+            "table_id": 33574068,  # MyIngress.ipv4_lpm
             "match": [
                 {
                     "field_id": 1,  # hdr.ipv4.dstAddr
                     "match_type": p4runtime_pb2.FieldMatch.LPM,
-                    "value": socket.inet_aton("192.168.0.2"),
+                    "value": socket.inet_aton("192.168.2.2"),
                     "prefix_len": 32,
                 }
             ],
-            "is_default_action": True,
             "action": {
                 "action_id": 16799317,  # MyIngress.ipv4_forward
                 "params": [
-                    (1, binascii.unhexlify("00:00:00:00:00:02".replace(':', ''))),  # (dstAddr, "00:00:00:00:00:02")
-                    (2, (2).to_bytes(9, "big"))  # (port, 2)
+                    (1, binascii.unhexlify("08:00:00:00:00:02".replace(':', ''))),  # (dstAddr, "08:00:00:00:00:02")
+                    (2, (2).to_bytes(2, "big"))  # (port, 2)
                 ]
             }
         },

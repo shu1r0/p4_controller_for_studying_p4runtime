@@ -2,7 +2,7 @@
 
 ## P4 Compile
 
-```
+```bash
 docker run --rm -v $PWD:/workdir -w /workdir opennetworking/p4c:stable p4c-bm2-ss --arch v1model -o p4src/build/basic.bmv2.json --p4runtime-files p4src/build/basic.p4info.txt --Wdisable=unsupported p4src/basic.p4
 ```
 
@@ -13,7 +13,11 @@ docker run --privileged --rm -it -v $PWD:/workdir -w /workdir -p50001-50030:5000
 ```
 
 ```bash
-simple_switch_grpc --device-id 1 -i 1@s1_h1 -i 2@s1_h2 --log-console --log-level info ./p4src/build/basic.bmv2.json -- --cpu-port 255 --grpc-server-addr 0.0.0.0:50001
+root@p4mn:/workdir# python mininet_lib/simple_net.py
+```
+
+```bash
+mininet> p1 simple_switch_grpc --device-id 1 -i 1@p1_h1 -i 2@p1_h2 --log-console --log-level info ./p4src/build/basic.bmv2.json -- --cpu-port 255 --grpc-server-addr 0.0.0.0:50001 &
 ```
 
 ## References
@@ -43,23 +47,23 @@ Status: Downloaded newer image for opennetworking/p4mn:stable
 *** Adding hosts:
 h1 h2 
 *** Adding switches:
-s1 
+p1 
 *** Adding links:
-(h1, s1) (h2, s1) 
+(h1, p1) (h2, p1) 
 *** Configuring hosts
 h1 h2 
 *** Starting controller
 
 *** Starting 1 switches
-s1 ....⚡️ simple_switch_grpc @ 50001
+p1 ....⚡️ simple_switch_grpc @ 50001
 
 *** Starting CLI:
 mininet> nodes   
 available nodes are: 
-h1 h2 s1
-mininet> py print(s1)
+h1 h2 p1
+mininet> py print(p1)
 invalid syntax (<string>, line 1)
-mininet> py print(s1.__dir__())
+mininet> py print(p1.__dir__())
 invalid syntax (<string>, line 1)
 mininet> py print("hopge")
 invalid syntax (<string>, line 1)
@@ -67,28 +71,28 @@ mininet> py
 unexpected EOF while parsing (<string>, line 0)
 mininet> p    
 pingall       pingallfull   pingpair      pingpairfull  ports         px            py            
-mininet> py s1
-<ONOSBmv2Switch s1: lo:127.0.0.1,s1-eth1:None,s1-eth2:None pid=16> 
-mininet> py print(s1)
+mininet> py p1
+<ONOSBmv2Switch p1: lo:127.0.0.1,p1-eth1:None,p1-eth2:None pid=16> 
+mininet> py print(p1)
 invalid syntax (<string>, line 1)
-mininet> py print(dir(s1))
+mininet> py print(dir(p1))
 invalid syntax (<string>, line 1)
-mininet> py dir(s1)           
+mininet> py dir(p1)           
 ['IP', 'MAC', '__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_popen', 'addIntf', 'bmv2Args', 'bmv2popen', 'chassisConfig', 'chassisConfigFile', 'checkSetup', 'cleanup', 'cleanupTmpFiles', 'cmd', 'cmdPrint', 'config', 'configDefault', 'connected', 'connectionsTo', 'controlIntf', 'cpuPort', 'debugger', 'decoder', 'defaultDpid', 'defaultIntf', 'delIntf', 'deleteIntfs', 'doOnosNetcfg', 'dpid', 'dpidLen', 'dryrun', 'elogger', 'execed', 'fdToNode', 'getBmv2CmdString', 'getDeviceConfig', 'getStratumCmdString', 'grpcPort', 'grpcPortInternal', 'inNamespace', 'inToNode', 'injectPorts', 'intf', 'intfIsUp', 'intfList', 'intfNames', 'intfs', 'isSetup', 'json', 'keepaliveFile', 'killBmv2', 'lastCmd', 'lastPid', 'latitude', 'linkTo', 'listenPort', 'logfd', 'logfile', 'loglevel', 'longitude', 'master', 'mininet_exception', 'monitor', 'mountPrivateDirs', 'name', 'nameToIntf', 'netcfgfile', 'newPort', 'nextGrpcPort', 'notifications', 'onosDeviceId', 'opts', 'outToNode', 'p4DeviceId', 'params', 'pexec', 'pid', 'pipeconfId', 'pktdump', 'pollOut', 'popen', 'portBase', 'ports', 'printBmv2Log', 'privateDirs', 'read', 'readbuf', 'readline', 'sendCmd', 'sendInt', 'setARP', 'setDefaultRoute', 'setHostRoute', 'setIP', 'setMAC', 'setParam', 'setup', 'shell', 'slave', 'start', 'startShell', 'stdin', 'stdout', 'stop', 'stopped', 'targetName', 'terminate', 'thriftPort', 'unmountPrivateDirs', 'useStratum', 'valgrind', 'waitBmv2Start', 'waitExited', 'waitOutput', 'waitReadable', 'waiting', 'withGnmi', 'write']
-mininet> py s1.params
+mininet> py p1.params
 {'isSwitch': True}
-mininet> py s1.sw_path
+mininet> py p1.sw_path
 'ONOSBmv2Switch' object has no attribute 'sw_path'
-mininet> py s1.json   
-mininet> py s1.getBmv2CmdString()
-simple_switch_grpc --device-id 1 -i 1@s1-eth1 -i 2@s1-eth2 --log-console -Lwarn --no-p4 -- --cpu-port 255 --grpc-server-addr 0.0.0.0:50001
+mininet> py p1.json   
+mininet> py p1.getBmv2CmdString()
+simple_switch_grpc --device-id 1 -i 1@p1-eth1 -i 2@p1-eth2 --log-console -Lwarn --no-p4 -- --cpu-port 255 --grpc-server-addr 0.0.0.0:50001
 mininet> exit 
 *** Stopping 0 controllers
 
 *** Stopping 2 links
 ..
 *** Stopping 1 switches
-s1 
+p1 
 *** Stopping 2 hosts
 h1 h2 
 *** Done

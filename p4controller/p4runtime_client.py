@@ -25,6 +25,7 @@ class FieldMatch(TypedDict, total=False):
 
 
 class TableEntry(TypedDict, total=False):
+    update_type: int
     table_id: int
     match: List[FieldMatch]
     is_default_action: bool
@@ -49,21 +50,21 @@ def build_table_entry(entry: TableEntry):
         match_type = m["match_type"]
         field_match = table_entry.match.add()
         field_match.field_id = m["field_id"]
-        if match_type == p4runtime_pb2.FieldMatch.EXACT:
+        if match_type == p4runtime_pb2.FieldMatch.Exact:
             field_match.exact.value = m["value"]
-        elif match_type == p4runtime_pb2.FieldMatch.TERNARY:
-            field_match.ternary_entry.value = m["value"]
-            field_match.ternary_entry.mask = m["mask"]
+        elif match_type == p4runtime_pb2.FieldMatch.Ternary:
+            field_match.ternary.value = m["value"]
+            field_match.ternary.mask = m["mask"]
         elif match_type == p4runtime_pb2.FieldMatch.LPM:
-            field_match.lpm_entry.value = m["value"]
-            field_match.lpm_entry.prefix_len = m["prefix_len"]
-        elif match_type == p4runtime_pb2.FieldMatch.RANGE:
-            field_match.range_entry.low = m["low"]
-            field_match.range_entry.high = m["high"]
-        if match_type == p4runtime_pb2.FieldMatch.Optional:
+            field_match.lpm.value = m["value"]
+            field_match.lpm.prefix_len = m["prefix_len"]
+        elif match_type == p4runtime_pb2.FieldMatch.Range:
+            field_match.range.low = m["low"]
+            field_match.range.high = m["high"]
+        elif match_type == p4runtime_pb2.FieldMatch.Optional:
             field_match.optional.value = m["value"]
         else:
-            raise Exception()
+            raise Exception("%s is unknown match type." % str(match_type))
 
     return table_entry
 
@@ -139,16 +140,16 @@ class P4RuntimeClient:
         self.logger.debug("GetPipelineConfigForward[Reply]: %s" % str(rep))
         return rep
 
-    def write_table_entries(self, table_entries: List[TableEntry], update_type: Optional[int] = None):
+    def write_table_entries(self, table_entries: List[TableEntry]):
         req = p4runtime_pb2.WriteRequest()
         req.device_id = self.device_id
         req.election_id.high = self.election_id_high
         req.election_id.low = self.election_id_low
-        update = req.updates.add()
         for entry in table_entries:
-            entry = build_table_entry(entry)
-            update.type = update_type if update_type else p4runtime_pb2.Update.MODIFY
-            update.entity.table_entry.CopyFrom(entry)
+            update = req.updates.add()
+            update.type = entry.get("update_type", p4runtime_pb2.Update.INSERT)
+            table_entry = build_table_entry(entry)
+            update.entity.table_entry.CopyFrom(table_entry)
         self.logger.debug("WriteTableEntries [Request]: %s" % str(req))
         rep = self.stub.Write(req)
         self.logger.debug("WriteTableEntries [Reply]: %s" % str(rep))
