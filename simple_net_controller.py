@@ -1,6 +1,7 @@
 import argparse
 import binascii
 import socket
+from time import sleep
 from logging import StreamHandler, DEBUG, getLogger
 from typing import List
 
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     client.master_arbitration_update()
     client.set_pipeline_config_forward()
     conf = client.get_pipeline_config_forward()
-    print(conf)
+    # print(conf)
 
     # 書き込むテーブルエントリ．各IDはp4infoから取得
     table_entries: List[TableEntry] = [
